@@ -7,6 +7,6 @@ Backend: creating DB - 1hr - Srynsh
 	      User Page-Srynsh
 
 Frontend: 7 days
-	html: Rishit, Rahul
+	html: All
 	JS: All
 	CSS: Rahul, Rishit
