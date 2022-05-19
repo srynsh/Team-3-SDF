@@ -1,0 +1,12 @@
+Backend: creating DB - 1hr - Srynsh
+	 Java Code - 7 days:
+	      General Page-Rishit, Rahul, srynsh
+	      Admin Page-Rishit
+	      Hospital Page-Rahul
+	      Staff Page-Srynsh
+	      User Page-Srynsh
+
+Frontend: 7 days
+	html: Rishit, Rahul
+	JS: All
+	CSS: Rahul, Rishit
