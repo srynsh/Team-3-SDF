@@ -1,0 +1,38 @@
+CovidDataBase {
+    Users {
+        Aadhar id,
+        Name,
+        Password,
+        Age,
+        Gender,
+        Number of doses,
+        Covid Status,
+        Death Status
+    }
+
+    DoseUser {
+        Dose Number,
+        User Id (Aadhar),
+        Date of dose
+    }
+
+    Hospital {
+        Number of Vaccines,
+        HospitalId,
+        HospitalName
+    }
+
+    HospitalStaff {
+        HospitalId,
+        Role,
+        Id,
+        Name,
+        Password
+    }
+
+    Admin {
+        Name,
+        Id, 
+        Password
+    }
+}
