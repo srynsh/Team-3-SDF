@@ -36,8 +36,14 @@ CovidDataBase {
         Password
     }
     
-    Appointments {
+    VaccineAppointments {
         HospitalId,
         UserId
     }
+    
+    TestAppointments {
+        HospitalId,
+        UserId
+    }
+    
 }
