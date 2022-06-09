@@ -35,4 +35,9 @@ CovidDataBase {
         Id, 
         Password
     }
+    
+    Appointments {
+        HospitalId,
+        UserId
+    }
 }
