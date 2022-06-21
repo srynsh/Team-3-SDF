@@ -1,0 +1,17 @@
+.NormGraph {
+    font-family: sans-serif;
+    text-align: center;
+  }
+
+.CumGraph {
+    font-family: sans-serif;
+    text-align: center;
+  }
+  
+  
+  .buttons{
+    display: flex;
+    width: 300px;
+    justify-content: space-between;
+    margin-left: 100px;
+  }
