@@ -31,4 +31,6 @@ router.get('/getStaffById', getStaffById);
 
 router.patch('/ReportCase/:aadharId', ReportCovidCase);
 router.patch('/ReportNegative/:aadharId', ReportCovidNegative);
+
+router.get('/getCovidData/:date', numberCasesToday);
 export default router;
