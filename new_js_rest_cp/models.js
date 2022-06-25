@@ -44,6 +44,9 @@ export const Hospital = db.define('hospital', {
     },
     hospitalName: {
         type: DataTypes.STRING
+    },
+    numberOfBookings: {
+        type: DataTypes.INTEGER
     }
 }, {
     freezeTableName: true
@@ -85,25 +88,25 @@ export const Admin = db.define('admin', {
     freezeTableName: true
 });
 
-// export const VaccineAppointments = db.define('vaccineAppoinments', {
-//     appoinmentId: {
-//         type: DataTypes.INTEGER
-//     },
-//     hospitalID: {
-//         type: DataTypes.INTEGER
-//     },
-//     aadharId: {
-//         type: DataTypes.STRING
-//     },
-//     jabStatus: {
-//         type: DataTypes.BOOLEAN
-//     },
-//     bookingDate: {
-//         type: DataTypes.DATEONLY
-//     }
-// }, {
-//     freezeTableName: true
-// });
+export const VaccineAppointments = db.define('vaccineAppoinments', {
+    appoinmentId: {
+        type: DataTypes.INTEGER
+    },
+    hospitalID: {
+        type: DataTypes.INTEGER
+    },
+    aadharId: {
+        type: DataTypes.STRING
+    },
+    jabStatus: {
+        type: DataTypes.BOOLEAN
+    },
+    bookingDate: {
+        type: DataTypes.DATEONLY
+    }
+}, {
+    freezeTableName: true
+});
 
 export const DailyCovidData = db.define('dailyCovidData', {
     dateToday: {
@@ -122,36 +125,36 @@ export const DailyCovidData = db.define('dailyCovidData', {
     freezeTableName: true
 });
 
-// export const CummilativeCovidData = db.define('cummilativeCovidData', {
-//     date: {
-//         type: DataTypes.DATEONLY
-//     },
-//     newCases: {
-//         type: DataTypes.INTEGER
-//     },
-//     newDeaths: {
-//         type: DataTypes.INTEGER
-//     },
-//     newRecovered: {
-//         type: DataTypes.INTEGER
-//     }
-// }, {
-//     freezeTableName: true
-// });
+export const CummilativeCovidData = db.define('cummilativeCovidData', {
+    date: {
+        type: DataTypes.DATEONLY
+    },
+    newCases: {
+        type: DataTypes.INTEGER
+    },
+    newDeaths: {
+        type: DataTypes.INTEGER
+    },
+    newRecovered: {
+        type: DataTypes.INTEGER
+    }
+}, {
+    freezeTableName: true
+});
 
-// export const VaccinationDetails = db.define('vaccinationDetails', {
-//     aadharId: {
-//         type: DataTypes.STRING
-//     },
-//     doseNumber: {
-//         type: DataTypes.INTEGER
-//     },
-//     date: {
-//         type: DataTypes.DATEONLY
-//     },
-//     appoinmentId: {
-//         type: DataTypes.INTEGER
-//     }
-// }, {
-//     freezeTableName: true
-// });
+export const VaccinationDetails = db.define('vaccinationDetails', {
+    aadharId: {
+        type: DataTypes.STRING
+    },
+    doseNumber: {
+        type: DataTypes.INTEGER
+    },
+    date: {
+        type: DataTypes.DATEONLY
+    },
+    appoinmentId: {
+        type: DataTypes.INTEGER
+    }
+}, {
+    freezeTableName: true
+});
