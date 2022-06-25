@@ -1,13 +1,14 @@
 import { Sequelize } from "sequelize";
 import {
     Users,
-    // VaccinationDetails,
+    VaccinationDetails,
     // VaccineAppointments,
     HospitalStaff,
     Hospital,
-    // CummilativeCovidData,
+    CummilativeCovidData,
     DailyCovidData,
-    Admin
+    Admin,
+    VaccineAppointments
 } from "../models.js";
 
 export const getAllUser = async (req, res) => {
@@ -131,14 +132,12 @@ export const getHospitalWithVaccine = async (req, res) => {
 }
 
 const newCasesToday = async (date) => {
-    console.log(date);
     try {
         const numberOfCases = await DailyCovidData.findAll({
             where: {
                 dateToday: date
             }
         });
-        //console.log(numberOfCases[0].newCases);
         return numberOfCases[0].newCases;
     } catch (error) {
         return -1;
@@ -146,15 +145,78 @@ const newCasesToday = async (date) => {
 }
 
 const newRecoveredToday = async (date) => {
-    console.log(date);
     try {
         const numberOfCases = await DailyCovidData.findAll({
             where: {
                 dateToday: date
             }
         });
-        //console.log(numberOfCases[0].newCases);
         return numberOfCases[0].newRecovered;
+    } catch (error) {
+        return -1;
+    }
+}
+
+const newDeadToday = async (date) => {
+    try {
+        const numberOfDeath = await DailyCovidData.findAll({
+            where: {
+                dateToday: date
+            }
+        });
+        return numberOfDeath[0].newDeaths;
+    } catch (error) {
+        return -1;
+    }
+}
+
+const TotalDead = async (date) => {
+    try {
+        const numberOfDeath = await CummilativeCovidData.findAll({
+            where: {
+                date: date
+            }
+        });
+        return numberOfCases[0].newDeaths;
+    } catch (error) {
+        return -1;
+    }
+}
+
+const TotalCases = async (date) => {
+    try {
+        const numberOfDeath = await CummilativeCovidData.findAll({
+            where: {
+                date: date
+            }
+        });
+        return numberOfCases[0].newCases;
+    } catch (error) {
+        return -1;
+    }
+}
+
+const TotalRecovered = async (date) => {
+    try {
+        const numberOfDeath = await CummilativeCovidData.findAll({
+            where: {
+                date: date
+            }
+        });
+        return numberOfCases[0].newRecovered;
+    } catch (error) {
+        return -1;
+    }
+}
+
+const totalData = async (date) => {
+    try {
+        const numberOfCases = await CummilativeCovidData.findAll({
+            where: {
+                date: date
+            }
+        });
+        return [numberOfCases[0].newCases, numberOfCases[0].newDeaths, numberOfCases[0].newRecovered];
     } catch (error) {
         return -1;
     }
@@ -218,6 +280,47 @@ export const ReportCovidNegative = async (req, res) => {
     }
 }
 
+export const ReportDeath = async (req, res) => {
+    console.log(JSON.stringify(req.body));
+    try {
+        const check = await Users.update({ isCovidPositive: false, deathStatus: true }, {
+            where: {
+                aadharId: req.params.aadharId,
+                isCovidPositive: true,
+                deathStatus: false
+            }
+        });
+        console.log(check);
+        if (check[0] != 0) {
+            const newDeaths = await newDeadToday(req.body.date) + 1;
+            await DailyCovidData.update({ newDeaths: newDeaths }, {
+                where: {
+                    dateToday: req.body.date
+                }
+            });
+            res.json({
+                "message": "Status Updated"
+            });
+        }
+        else {
+            throw error;
+        }
+    } catch (error) {
+        res.json({ message: error.message });
+    }
+}
+
+export const addVacccine = async (req, res) => {
+    try {
+        await Hospital.update(req.body, {
+            where: {
+                hospitalID: req.params.id
+            }
+        });
+    } catch (error) {
+        res.json({ message: error.message });
+    }
+}
 
 export const numberCasesToday = async (req, res) => {
     try {
@@ -229,5 +332,243 @@ export const numberCasesToday = async (req, res) => {
         res.json(numberOfCases[0]);
     } catch (error) {
         res.json({ message: error.message });
+    }
+}
+
+export const totalDailyData = async (req, res) => {
+    try {
+        const numberOfCases = await DailyCovidData.findAll();
+        res.json(numberOfCases);
+    } catch (error) {
+        res.json({ message: error.message });
+    }
+}
+
+export const covidDataCummilative = async (req, res) => {
+    try {
+        const data = await CummilativeCovidData.findAll({
+            where: {
+                date: req.params.date
+            }
+        });
+        res.json(data[0]);
+    } catch (error) {
+        res.json({ message: error.message });
+    }
+}
+
+export const totalCovidDataCummilative = async (req, res) => {
+    try {
+        const data = await CummilativeCovidData.findAll();
+        res.json(data);
+    } catch (error) {
+        res.json({ message: error.message });
+    }
+}
+
+export const createUser = async (req, res) => {
+    try {
+        await Users.create(req.body);
+        res.json({
+            "message": "User Added"
+        });
+    } catch (error) {
+        res.json({ message: error.message });
+    }
+}
+
+export const createHospital = async (req, res) => {
+    try {
+        await Hospital.create(req.body);
+        res.json({
+            "message": "Hospital Added"
+        });
+    } catch (error) {
+        res.json({ message: error.message });
+    }
+}
+
+export const createAdmin = async (req, res) => {
+    try {
+        await Admin.create(req.body);
+        res.json({
+            "message": "Admin Added"
+        });
+    } catch (error) {
+        res.json({ message: error.message });
+    }
+}
+
+export const createStaff = async (req, res) => {
+    try {
+        await HospitalStaff.create(req.body);
+        res.json({
+            "message": "Staff Added"
+        });
+    } catch (error) {
+        res.json({ message: error.message });
+    }
+}
+
+const getIdDaily = async (date) => {
+    try {
+        const id = await DailyCovidData.findAll({
+            where: {
+                dateToday: date
+            }
+        })
+        return id[0].id;
+    } catch (error) {
+        return -1;
+    }
+}
+
+const getIdCummilative = async (date) => {
+    try {
+        console.log(date);
+        const id = await CummilativeCovidData.findAll({
+            where: {
+                date: date
+            }
+        })
+        console.log(JSON.stringify(id[0]));
+        return id[0].id;
+    } catch (error) {
+        return -1;
+    }
+}
+
+const getCaseData = async (id) => {
+    try {
+        console.log(id);
+        const CaseData = await CummilativeCovidData.findAll({
+            where: {
+                id: id
+            }
+        });
+        return [CaseData[0].newCases, CaseData[0].newRecovered, CaseData[0].newDeaths];
+    } catch (error) {
+        res.json({ message: error.message });
+    }
+}
+
+export const updateCummilativeData = async (req, res) => {
+    try {
+        const dateCurrent = req.body.date;
+
+        let prevDate = new Date(dateCurrent);
+        prevDate.setDate(prevDate.getDate() - 1)
+        const prevDateStr = prevDate.toISOString().split('T')[0];
+
+        let DataCummilative = await totalData(prevDateStr);
+
+        let newCasesReported = await newCasesToday(dateCurrent) + DataCummilative[0];
+        let newDeathsReported = await newDeadToday(dateCurrent) + DataCummilative[1];
+        let newRecoveredReported = await newRecoveredToday(dateCurrent) + DataCummilative[2];
+
+        await CummilativeCovidData.create({
+            newCases: newCasesReported,
+            newDeaths: newDeathsReported,
+            newRecovered: newRecoveredReported,
+            date: dateCurrent
+        });
+
+        res.json({
+            "message": "Updated"
+        });
+    } catch (error) {
+        res.json({ message: error.message });
+    }
+}
+
+const getBookings = async (hospitalID) => {
+    try {
+        const numBooking = await Hospital.findAll({
+            where: {
+                hospitalID: hospitalID
+            }
+        });
+
+        return numBooking[0].numberOfBookings;
+    } catch (error) {
+        return -1;
+    }
+}
+
+const getVaccines = async (hospitalID) => {
+    try {
+        const numVaccine = await Hospital.findAll({
+            where: {
+                hospitalID: hospitalID
+            }
+        });
+
+        return numVaccine[0].numberOfVaccines;
+    } catch (error) {
+        return -1;
+    }
+}
+
+export const getHospitalWithBooking = async (req, res) => {
+    try {
+
+    } catch (error) {
+
+    }
+}
+
+export const newAppointment = async (req, res) => {
+    try {
+        let numBook = await getBookings(req.body.hospitalID);
+        let numVacc = await getVaccines(req.body.hospitalID);
+        if (numBook >= numVacc) {
+            res.json({
+                "message": "We are full"
+            });
+        } else {
+            await VaccineAppointments.create(req.body);
+            res.json({
+                "message": "Appointment made"
+            });
+        }
+    } catch (error) {
+        res.json({ message: error.message });
+    }
+}
+
+export const getUserAppointments = async (req, res) => {
+    try {
+        const appointments = await VaccineAppointments.findAll({
+            where: {
+                aadharId: id
+            }
+        });
+
+        res.json(appointments);
+    } catch (error) {
+        res.json({ message: error.message });
+    }
+}
+
+const getUser = async (aadharId) => {
+    try {
+        const user = await Users.findAll({
+            where: {
+                aadharId: aadharId
+            }
+        });
+
+        return user[0];
+    } catch (error) {
+        return -1;
+    }
+}
+
+export const giveVaccine = async (req, res) => {
+    try {
+        const user = getUser(req.params.aadharId);
+
+    } catch (error) {
+
     }
 }
