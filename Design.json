@@ -1,0 +1,27 @@
+{
+	"Admin": {
+		"Add Hospital": "Done",
+		"Get All Hospitals": "Done"
+	},
+	"Users": {
+		"Get Available Hospitals": "Not Done",
+		"Get Vaccination Status": "Done",
+		"Book Appointment": "Not Done"
+	},
+	"Hospital": {
+		"Staff": {
+			"Report +ve": "Done",
+			"Report -ve": "Done",
+			"Report Death": "Done",
+			"Vaccinate User": "Not Done"
+		},
+		"Manager": {
+			"Restock Vaccine": "Done",
+			"Add/Delete Staff": "Done"
+		}
+	},
+	"Worldometer Page": {
+		"Get Daily Data": "Done",
+		"Get Cumulative Date": "Done"
+	}
+}
