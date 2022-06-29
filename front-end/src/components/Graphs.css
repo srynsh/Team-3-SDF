@@ -9,9 +9,38 @@
   }
   
   
-  .buttons{
+  .buttons1{
     display: flex;
-    width: 300px;
+    width: 350px;
     justify-content: space-between;
-    margin-left: 100px;
+    margin-left: 90px;
+  }
+
+  .buttons2{
+    display: flex;
+    width: 400px;
+    justify-content: space-between;
+    margin-left: 60px;
+  }
+
+  .btn.btn-secondary{
+    background-color: #f27d72;
+  }
+
+  .btn.btn-secondary:hover, .btn.btn-secondary:focus {
+    background-color: #db675c;
+    box-shadow: none;
+  }
+
+  .btn.btn-danger:hover, .btn.btn-danger:focus,
+   .btn.btn-primary:hover, .btn.btn-primary:focus,
+   .btn.btn-danger:hover, .btn.btn-danger:focus,
+   .btn.btn-info:hover, .btn.btn-info:focus,
+   .btn.btn-success:hover, .btn.btn-success:focus,
+   .btn.btn-warning:hover, .btn.btn-warning:focus{
+    box-shadow: none;
+   }
+
+  .btn:hover, .btn:focus{
+    box-shadow: none;
   }
