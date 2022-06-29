@@ -4,16 +4,16 @@
 		"Get All Hospitals": "Done"
 	},
 	"Users": {
-		"Get Available Hospitals": "Not Done",
+		"Get Available Hospitals": "Done",
 		"Get Vaccination Status": "Done",
-		"Book Appointment": "Not Done"
+		"Book Appointment": "Done"
 	},
 	"Hospital": {
 		"Staff": {
 			"Report +ve": "Done",
 			"Report -ve": "Done",
 			"Report Death": "Done",
-			"Vaccinate User": "Not Done"
+			"Vaccinate User": "Done"
 		},
 		"Manager": {
 			"Restock Vaccine": "Done",
