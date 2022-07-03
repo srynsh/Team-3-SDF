@@ -576,8 +576,11 @@ export const getHospitalWithBooking = async (req, res) => {
 
 export const newAppointment = async (req, res) => {
   try {
-    let numBook = await getNumberOfBookings(req.body.hospitalID);
-    let numVacc = await getNumberOfVaccines(req.body.hospitalID);
+    let numBook = parseInt(await getNumberOfBookings(req.params.hospitalID));
+    let numVacc = parseInt(await getNumberOfVaccines(req.params.hospitalID));
+
+    const user = await getUser(req.body.aadharId);
+    const hospital = await getHospital(req.body.hospitalID);
 
     console.log(req.params.hospitalID);
     console.log(numBook);
@@ -593,6 +596,16 @@ export const newAppointment = async (req, res) => {
       console.log(req.body);
       try {
         await VaccineAppointments.create(req.body);
+
+        await Hospital.update(
+          { numberOfBookings: numBook + 1 },
+          {
+            where: {
+              hospitalID: req.params.hospitalID,
+            },
+          }
+        );
+
         res.json({
           message: "Appointment made",
         });
@@ -753,6 +766,74 @@ export const covidDataCummilativeRange = async (req, res) => {
     });
 
     res.json(Result);
+  } catch (error) {
+    res.json({ message: error.message });
+  }
+};
+
+export const createDay = async (dateVar) => {
+  try {
+    DailyCovidData.create({
+      dateToday: dateVar,
+      newCases: 0,
+      newDeaths: 0,
+      newRecovered: 0,
+    });
+
+    return 1;
+  } catch (error) {
+    return 0;
+  }
+};
+
+export const aunthicateUser = async (req, res) => {
+  try {
+    console.log(req.body.password);
+    const pswd = await Users.findAll({
+      where: {
+        aadharId: req.body.aadharId,
+      },
+    });
+    console.log(pswd);
+    if (pswd[0].password == req.body.password) {
+      res.json({ status: "1" });
+    } else {
+      res.json({ status: "0" });
+    }
+  } catch (error) {
+    res.json({ message: error.message });
+  }
+};
+
+export const authenticateAdmin = async (req, res) => {
+  try {
+    const pswd = await Admin.findAll({
+      where: {
+        id: req.body.id,
+      },
+    });
+    if (pswd[0].password == req.body.password) {
+      res.json({ status: "1" });
+    } else {
+      res.json({ status: "0" });
+    }
+  } catch (error) {
+    res.json({ message: error.message });
+  }
+};
+
+export const authenticateStaff = async (req, res) => {
+  try {
+    const pswd = await HospitalStaff.findAll({
+      where: {
+        id: req.body.id,
+      },
+    });
+    if (pswd[0].password == req.body.password) {
+      res.json({ status: "1", role: pswd[0].role });
+    } else {
+      res.json({ status: "0" });
+    }
   } catch (error) {
     res.json({ message: error.message });
   }
