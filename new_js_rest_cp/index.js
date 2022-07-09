@@ -3,9 +3,13 @@ import express from "express";
 import cors from "cors";
 import productRoutes from "./routes/index.js";
 import cron from "node-cron";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import {
   updateCummilativeDataInternal,
   createDay,
+  cancelBooking,
 } from "./controllers/Products.js";
 const app = express();
 
@@ -20,7 +24,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/", productRoutes);
 
-cron.schedule("0 0 1 * * *", () => {
+cron.schedule("0 1 0 * * *", () => {
   let prevDate = new Date();
   prevDate.setDate(prevDate.getDate() - 1);
   let prevDateStr = prevDate
@@ -28,9 +32,10 @@ cron.schedule("0 0 1 * * *", () => {
     .split(",")[0]; //toISOString().split('T')[0];
   console.log(prevDateStr);
   updateCummilativeDataInternal(prevDateStr);
+  cancelBooking(prevDateStr);
 });
 
-cron.schedule("0 0 22 * * *", () => {
+cron.schedule("0 50 23 * * *", () => {
   let nextDate = new Date();
   nextDate.setDate(nextDate.getDate() + 1);
   let nextDateStr = nextDate
@@ -41,7 +46,7 @@ cron.schedule("0 0 22 * * *", () => {
 });
 
 //cron.schedule("0 0 22 * * *", updateCummilativeDataInternal);
-cron.schedule("0 0 1 * * *", () => {});
+//cron.schedule("0 0 1 * * *", () => {});
 
 app.listen(5002, () => {
   console.log("Running on PORT 5002");
