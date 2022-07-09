@@ -1,160 +1,223 @@
 import { Sequelize } from "sequelize";
-import db from './conn.js';
+import db from "./conn.js";
 
 const { DataTypes } = Sequelize;
 
-export const Users = db.define('users', {
+export const Users = db.define(
+  "users",
+  {
     name: {
-        type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     age: {
-        type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
     },
     gender: {
-        type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     aadharId: {
-        type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     numberOfVaccines: {
-        type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
     },
     password: {
-        type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     isCovidPositive: {
-        type: DataTypes.BOOLEAN
+      type: DataTypes.BOOLEAN,
     },
     deathStatus: {
-        type: DataTypes.BOOLEAN
+      type: DataTypes.BOOLEAN,
     },
     mobileNumber: {
-        type: DataTypes.STRING
-    }
-}, {
-    freezeTableName: true
-});
+      type: DataTypes.STRING,
+    },
+    dateOfDeath: {
+      type: DataTypes.DATEONLY,
+    },
+  },
+  {
+    freezeTableName: true,
+  }
+);
 
-export const Hospital = db.define('hospital', {
+export const Hospital = db.define(
+  "hospital",
+  {
     hospitalID: {
-        type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
     },
     numberOfVaccines: {
-        type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
     },
     hospitalName: {
-        type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     numberOfBookings: {
-        type: DataTypes.INTEGER
-    }
-}, {
-    freezeTableName: true
-});
+      type: DataTypes.INTEGER,
+    },
+  },
+  {
+    freezeTableName: true,
+  }
+);
 
-export const HospitalStaff = db.define('hospitalStaff', {
+export const HospitalStaff = db.define(
+  "hospitalStaff",
+  {
     hospitalID: {
-        type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
     },
-    role: { // There are 2 Roles --> M(Manager), S(Staff)
-        type: DataTypes.STRING
+    role: {
+      // There are 2 Roles --> M(Manager), S(Staff)
+      type: DataTypes.STRING,
     },
     name: {
-        type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     password: {
-        type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true
-    }
-}, {
-    freezeTableName: true
-});
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+    },
+  },
+  {
+    freezeTableName: true,
+  }
+);
 
-export const Admin = db.define('admin', {
+export const Admin = db.define(
+  "admin",
+  {
     name: {
-        type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     password: {
-        type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true
-    }
-}, {
-    freezeTableName: true
-});
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+    },
+  },
+  {
+    freezeTableName: true,
+  }
+);
 
-export const VaccineAppointments = db.define('vaccineAppoinments', {
+export const VaccineAppointments = db.define(
+  "vaccineAppoinments",
+  {
     appoinmentId: {
-        type: DataTypes.INTEGER
+      type: DataTypes.STRING,
     },
     hospitalID: {
-        type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
     },
     aadharId: {
-        type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     jabStatus: {
-        type: DataTypes.BOOLEAN
+      type: DataTypes.BOOLEAN,
     },
     bookingDate: {
-        type: DataTypes.DATEONLY
-    }
-}, {
-    freezeTableName: true
-});
+      type: DataTypes.DATEONLY,
+    },
+  },
+  {
+    freezeTableName: true,
+  }
+);
 
-export const DailyCovidData = db.define('dailyCovidData', {
+export const DailyCovidData = db.define(
+  "dailyCovidData",
+  {
     dateToday: {
-        type: DataTypes.DATEONLY
+      type: DataTypes.DATEONLY,
     },
     newCases: {
-        type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
     },
     newDeaths: {
-        type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
     },
     newRecovered: {
-        type: DataTypes.INTEGER
-    }
-}, {
-    freezeTableName: true
-});
+      type: DataTypes.INTEGER,
+    },
+  },
+  {
+    freezeTableName: true,
+  }
+);
 
-export const CummilativeCovidData = db.define('cummilativeCovidData', {
+export const CummilativeCovidData = db.define(
+  "cummilativeCovidData",
+  {
     date: {
-        type: DataTypes.DATEONLY
+      type: DataTypes.DATEONLY,
     },
     newCases: {
-        type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
     },
     newDeaths: {
-        type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
     },
     newRecovered: {
-        type: DataTypes.INTEGER
-    }
-}, {
-    freezeTableName: true
-});
+      type: DataTypes.INTEGER,
+    },
+  },
+  {
+    freezeTableName: true,
+  }
+);
 
-export const VaccinationDetails = db.define('vaccinationDetails', {
+export const VaccinationDetails = db.define(
+  "vaccinationDetails",
+  {
     aadharId: {
-        type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     doseNumber: {
-        type: DataTypes.INTEGER
+      type: DataTypes.INTEGER,
     },
     date: {
-        type: DataTypes.DATEONLY
+      type: DataTypes.DATEONLY,
     },
     appoinmentId: {
-        type: DataTypes.INTEGER
-    }
-}, {
-    freezeTableName: true
-});
+      type: DataTypes.STRING,
+    },
+  },
+  {
+    freezeTableName: true,
+  }
+);
+
+export const CovidCasesData = db.define(
+  "covidCasesData",
+  {
+    dateReported: {
+      type: DataTypes.DATEONLY,
+    },
+    age: {
+      type: DataTypes.INTEGER,
+    },
+    numberOfVaccines: {
+      type: DataTypes.INTEGER,
+    },
+    aadharId: {
+      type: DataTypes.STRING,
+    },
+    gender: {
+      type: DataTypes.STRING,
+    },
+    dateRecovered: {
+      type: DataTypes.DATEONLY,
+    },
+  },
+  {
+    freezeTableName: true,
+  }
+);
