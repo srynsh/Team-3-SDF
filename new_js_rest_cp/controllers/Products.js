@@ -1,4 +1,4 @@
-import { Sequelize } from "sequelize";
+import { Sequelize, where } from "sequelize";
 import {
   Users,
   VaccinationDetails,
@@ -8,11 +8,14 @@ import {
   DailyCovidData,
   Admin,
   VaccineAppointments,
+  CovidCasesData,
 } from "../models.js";
 
 export const getAllUsers = async (req, res) => {
   try {
-    const user = await Users.findAll();
+    const user = await Users.findAll({
+      where: req.query,
+    });
     res.json(user);
   } catch (error) {
     res.json({ message: error.message });
@@ -276,6 +279,16 @@ export const ReportCovidCase = async (req, res) => {
           },
         }
       );
+
+      const posPerson = await getUser(req.params.aadharId);
+
+      await CovidCasesData.create({
+        aadharId: req.params.aadharId,
+        age: posPerson.age,
+        gender: posPerson.gender,
+        numberOfVaccines: posPerson.numberOfVaccines,
+        dateReported: req.body.date,
+      });
       res.json({
         message: "Case Reported",
       });
@@ -310,6 +323,21 @@ export const ReportCovidNegative = async (req, res) => {
           },
         }
       );
+
+      await CovidCasesData.update(
+        {
+          dateRecovered: req.body.date,
+        },
+        {
+          where: {
+            aadharId: req.params.aadharId,
+            dateRecovered: {
+              [Sequelize.Op.is]: null,
+            },
+          },
+        }
+      );
+
       res.json({
         message: "Status Updated",
       });
@@ -325,7 +353,7 @@ export const ReportDeath = async (req, res) => {
   console.log(JSON.stringify(req.body));
   try {
     const check = await Users.update(
-      { isCovidPositive: false, deathStatus: true },
+      { deathStatus: true, dateOfDeath: req.body.date },
       {
         where: {
           aadharId: req.params.aadharId,
@@ -406,6 +434,30 @@ export const createUser = async (req, res) => {
     res.json({
       message: "User Added",
     });
+  } catch (error) {
+    res.json({ message: error.message });
+  }
+};
+
+export const createUser2 = async (req, res) => {
+  try {
+    const newUser = await getUser(req.params.aadharId);
+    if (newUser != -1) {
+      res.json({ message: "User already exists" });
+    } else {
+      await Users.create({
+        aadharId: req.params.aadharId,
+        age: req.body.age,
+        name: req.body.name,
+        mobileNumber: req.body.mobileNumber,
+        gender: req.body.gender,
+        numberOfVaccines: req.body.numberOfVaccines,
+        deathStatus: req.body.deathStatus,
+        isCovidPositive: req.body.isCovidPositive,
+        password: req.body.password,
+      });
+      res.json({ message: "User Created" });
+    }
   } catch (error) {
     res.json({ message: error.message });
   }
@@ -578,7 +630,6 @@ export const newAppointment = async (req, res) => {
   try {
     let numBook = parseInt(await getNumberOfBookings(req.params.hospitalID));
     let numVacc = parseInt(await getNumberOfVaccines(req.params.hospitalID));
-
     const user = await getUser(req.body.aadharId);
     const hospital = await getHospital(req.body.hospitalID);
 
@@ -595,7 +646,12 @@ export const newAppointment = async (req, res) => {
       console.log("Pass");
       console.log(req.body);
       try {
-        await VaccineAppointments.create(req.body);
+        await VaccineAppointments.create({
+          aadharId: req.body.aadharId,
+          appoinmentId: req.params.appoinmentId,
+          bookingDate: req.body.bookingDate,
+          hospitalID: req.params.hospitalID,
+        });
 
         await Hospital.update(
           { numberOfBookings: numBook + 1 },
@@ -614,7 +670,7 @@ export const newAppointment = async (req, res) => {
       }
     }
   } catch (error) {
-    res.json({ message: error.message });
+    res.json({ message: error.message + "bye" });
   }
 };
 
@@ -640,6 +696,10 @@ const getUser = async (aadharId) => {
       },
     });
 
+    if (user.length == 0) {
+      return -1;
+    }
+
     return user[0];
   } catch (error) {
     return -1;
@@ -664,54 +724,68 @@ export const vaccinateUser = async (req, res) => {
   try {
     console.log(req.params);
 
-    const user = await getUser(req.params.aadharId);
-    const hospital = await getHospital(req.params.hospitalID);
-    const numBooking = parseInt(hospital.numberOfBookings) - 1;
-    const numVacc = parseInt(hospital.numberOfVaccines) - 1;
-    const numDose = parseInt(user.numberOfVaccines) + 1;
-
-    //console.log(user);
-    console.log(user.aadharId);
-    console.log(hospital.numberOfVaccines);
-    console.log(hospital.numberOfBookings);
-    console.log(numBooking);
-    console.log(numVacc);
-    console.log(numDose);
-
-    await Users.update(
-      { numberOfVaccines: numDose },
-      {
-        where: {
-          aadharId: req.params.aadharId,
-        },
-      }
-    );
-
-    await Hospital.update(
-      {
-        numberOfBookings: numBooking,
-        numberOfVaccines: numVacc,
+    const result = await VaccineAppointments.findAll({
+      where: {
+        appoinmentId: req.params.appoinmentId,
       },
-      {
-        where: {
-          hospitalID: req.params.hospitalID,
-        },
-      }
-    );
-
-    let prevDate = new Date();
-    let DateStr = prevDate
-      .toLocaleString("fr-CA", { timeZone: "Asia/Kolkata" })
-      .split(",")[0];
-
-    await VaccinationDetails.create({
-      aadharId: req.params.aadharId,
-      doseNumber: numDose,
-      appoinmentId: req.params.appoinmentId,
-      date: DateStr,
     });
 
-    res.json({ message: "User Vaccinated" });
+    if (result[0].jabStatus == 1) {
+      res.json({ message: "User already Vaccinated" });
+    } else {
+      const AadharId = result[0].aadharId;
+      const HospitalID = result[0].hospitalID;
+
+      const user = await getUser(AadharId);
+      const hospital = await getHospital(HospitalID);
+      const numBooking = parseInt(hospital.numberOfBookings) - 1;
+      const numVacc = parseInt(hospital.numberOfVaccines) - 1;
+      const numDose = parseInt(user.numberOfVaccines) + 1;
+
+      await Users.update(
+        { numberOfVaccines: numDose },
+        {
+          where: {
+            aadharId: AadharId,
+          },
+        }
+      );
+
+      await VaccineAppointments.update(
+        { jabStatus: 1 },
+        {
+          where: {
+            appoinmentId: req.params.appoinmentId,
+          },
+        }
+      );
+
+      await Hospital.update(
+        {
+          numberOfBookings: numBooking,
+          numberOfVaccines: numVacc,
+        },
+        {
+          where: {
+            hospitalID: HospitalID,
+          },
+        }
+      );
+
+      let prevDate = new Date();
+      let DateStr = prevDate
+        .toLocaleString("fr-CA", { timeZone: "Asia/Kolkata" })
+        .split(",")[0];
+
+      await VaccinationDetails.create({
+        aadharId: AadharId,
+        doseNumber: numDose,
+        appoinmentId: req.params.appoinmentId,
+        date: DateStr,
+      });
+
+      res.json({ message: "User Vaccinated" });
+    }
   } catch (error) {
     res.json({ message: error.message });
   }
@@ -796,12 +870,13 @@ export const aunthicateUser = async (req, res) => {
     });
     console.log(pswd);
     if (pswd[0].password == req.body.password) {
-      res.json({ status: "1" });
+      res.json(pswd[0]);
+      // res.json({ status: "1" });
     } else {
       res.json({ status: "0" });
     }
   } catch (error) {
-    res.json({ message: error.message });
+    res.json({ status: "0" });
   }
 };
 
@@ -813,12 +888,12 @@ export const authenticateAdmin = async (req, res) => {
       },
     });
     if (pswd[0].password == req.body.password) {
-      res.json({ status: "1" });
+      res.json(pswd[0]);
     } else {
       res.json({ status: "0" });
     }
   } catch (error) {
-    res.json({ message: error.message });
+    res.json({ status: "0" });
   }
 };
 
@@ -830,10 +905,152 @@ export const authenticateStaff = async (req, res) => {
       },
     });
     if (pswd[0].password == req.body.password) {
-      res.json({ status: "1", role: pswd[0].role });
+      res.json(pswd[0]);
     } else {
       res.json({ status: "0" });
     }
+  } catch (error) {
+    res.json({ status: "0" });
+  }
+};
+
+export const getAllBookings = async (req, res) => {
+  try {
+    const ans = await VaccineAppointments.findAll({
+      where: {
+        hospitalID: req.params.hospitalID,
+        jabStatus: {
+          [Sequelize.Op.is]: null,
+        },
+      },
+    });
+
+    res.json(ans);
+  } catch (error) {
+    res.json({ message: error.message });
+  }
+};
+
+export const cancelBooking = async (date) => {
+  try {
+    VaccineAppointments.update(
+      { jabStatus: 0 },
+      {
+        where: {
+          bookingDate: {
+            [Sequelize.Op.lte]: date,
+          },
+          jabStatus: {
+            [Sequelize.Op.is]: null,
+          },
+        },
+      }
+    );
+
+    return 1;
+  } catch (error) {
+    return 0;
+  }
+};
+
+export const getCovidDataWithFilters = async (req, res) => {
+  try {
+    let minAge = req.query.startAge;
+    let maxAge = req.query.endAge;
+    let minVacc = req.query.NumberOfVaccinesStart;
+    let maxVacc = req.query.NumberOfVaccinesEnd;
+    let gen = req.query.gender;
+
+    let reportedData;
+    let deathData;
+    if (gen == undefined) {
+      reportedData = await CovidCasesData.findAll({
+        where: {
+          numberOfVaccines: {
+            [Sequelize.Op.gte]: minVacc,
+            [Sequelize.Op.lte]: maxVacc,
+          },
+          age: {
+            [Sequelize.Op.gte]: minAge,
+            [Sequelize.Op.lte]: maxAge,
+          },
+          dateReported: {
+            [Sequelize.Op.lte]: req.query.date,
+          },
+        },
+      });
+
+      deathData = await Users.findAll({
+        where: {
+          numberOfVaccines: {
+            [Sequelize.Op.gte]: minVacc,
+            [Sequelize.Op.lte]: maxVacc,
+          },
+          age: {
+            [Sequelize.Op.gte]: minAge,
+            [Sequelize.Op.lte]: maxAge,
+          },
+          dateOfDeath: {
+            [Sequelize.Op.ne]: null,
+            [Sequelize.Op.lte]: req.query.date,
+          },
+        },
+      });
+    } else {
+      reportedData = await CovidCasesData.findAll({
+        where: {
+          numberOfVaccines: {
+            [Sequelize.Op.gte]: minVacc,
+            [Sequelize.Op.lte]: maxVacc,
+          },
+          age: {
+            [Sequelize.Op.gte]: minAge,
+            [Sequelize.Op.lte]: maxAge,
+          },
+          dateReported: {
+            [Sequelize.Op.lte]: req.query.date,
+          },
+          gender: gen,
+        },
+      });
+
+      deathData = await Users.findAll({
+        where: {
+          numberOfVaccines: {
+            [Sequelize.Op.gte]: minVacc,
+            [Sequelize.Op.lte]: maxVacc,
+          },
+          age: {
+            [Sequelize.Op.gte]: minAge,
+            [Sequelize.Op.lte]: maxAge,
+          },
+          dateOfDeath: {
+            [Sequelize.Op.ne]: null,
+            [Sequelize.Op.lte]: req.query.date,
+          },
+          gender: gen,
+        },
+      });
+    }
+
+    let countReported = reportedData.length;
+
+    let recoveredData = reportedData.filter(
+      (obj) => obj.dateRecovered != null && obj.dateRecovered <= req.query.date
+    );
+
+    let countRecovered = recoveredData.length;
+
+    let countDeath = deathData.length;
+
+    let countActive = countReported - countRecovered - countDeath;
+
+    res.json({
+      numberOfDeath: countDeath,
+      numberOfRecovered: countRecovered,
+      numberOfReported: countReported,
+      numberOfActive: countActive,
+    });
   } catch (error) {
     res.json({ message: error.message });
   }
